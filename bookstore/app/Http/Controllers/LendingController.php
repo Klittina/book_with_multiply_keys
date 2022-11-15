@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\Copy;
 use App\Models\Lending;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class LendingController extends Controller
 {
@@ -66,4 +69,37 @@ class LendingController extends Controller
         $copies = Copy::all();
         return view('lending.new', ['users' => $users, 'copies' => $copies]);
     }
+
+
+
+    
+
+    //Az eddig kikölcsönzött könyvek listája a bejelentkezett felhasználó által - nemkellett
+    public function bejelentkezettkonyv(){
+        $user = Auth::user();
+        $konyv = Book::with('user')->where('user_id','=',$user->id)->get();
+        return $konyv;
+    }
+
+    public function bookUserCount(){
+        $user = Auth::user();
+        $copies = DB::table('lendings as l')	//egy tábla lehet csak
+	  //->select('mezo_neve')		//itt nem szükséges
+        //->join('users as u' ,'c.book_id','=','b.book_id') //kapcsolat leírása, akár több join is lehet
+        ->where('l.user_id','=', Auth::user()) ;	//esetleges szűrés
+        	//esetleges aggregálás; ha select, akkor get() a vége
+        return $copies;
+    }
+
+
+    public function bookData($title){
+        $copies = DB::table('lendings as l')	//egy tábla lehet csak
+          ->join('copies as c' ,'c.book_id','=','l.copy_id') //kapcsolat leírása, akár több join is lehet
+          ->where('l.copy_id','=',$title)
+          ->get() ;	//esetleges szűrés
+        				//esetleges aggregálás; ha select, akkor get() a vége
+          return $copies;
+  
+    }
+
 }
