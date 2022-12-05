@@ -4,6 +4,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CopyController;
 use App\Http\Controllers\LendingController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\IsLibrarian;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,11 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware( ['librarian'])->group(function () {
+    Route::apiResource('/librarian', IsLibrarian::class);
+});
+
 
 //ADMIN
 Route::middleware( ['admin'])->group(function () {
